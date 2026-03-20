@@ -1,0 +1,21 @@
+TOC-TOU Race Condition Observations
+Student ID: IDTB110129
+
+Bot Swarm Results (50 bots x 2 widgets = 100 total expected deduction):
+Run 1: 74
+Run 2: 58
+Run 3: 28
+Run 4: 10
+Run 5: 0
+
+Explanation:
+The final inventory value changes every run because the OS scheduler
+decides the order in which background processes execute, and this order
+is never guaranteed to be the same. Multiple bots read the same
+inventory value simultaneously (the "check"), compute the subtraction,
+and then overwrite the file with their result (the "use"), causing other
+bots' writes to be lost. This is a classic Time-of-Check to Time-of-Use
+(TOC-TOU) vulnerability — because there is no lock protecting the
+critical section, whichever bot writes last wins, and the rest of the
+deductions are silently discarded, leaving the inventory higher than it
+should be.
